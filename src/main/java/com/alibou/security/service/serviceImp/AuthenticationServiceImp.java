@@ -30,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +55,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 .yourName(request.getYourName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
+                .role(Role.ADMIN)
                 //.role(request.getRole())
                 .mobileNo(request.getMobileNo())
                 .build();
@@ -126,16 +127,17 @@ public class AuthenticationServiceImp implements AuthenticationService {
 
     @Override
     public AppointmentResponse appointment(AppointmentRequest request) {
-        User loggedInUser = authenticatedUserUtil.getAuthenticatedUser();
         Appointment appointment=new Appointment();
         AppointmentResponse appointmentResponse=new AppointmentResponse();
         logger.info("inside appointment method");
         try{
             logger.info("inside try block");
+            appointment.setYourName(request.getYourName());
+            appointment.setEmail(request.getEmail());
+            appointment.setMobileNo(request.getMobileNo());
             appointment.setDepartment(request.getDepartment());
             appointment.setAppointmentDate(request.getDateOfAppointment());
             appointment.setAppointmentTime(request.getTimeOfAppointment());
-            appointment.setUser(loggedInUser);
             appointmentRepository.save(appointment);
             appointmentResponse.setMessage("Appointment Booked Successfully!");
         }catch (Exception e){
@@ -144,6 +146,16 @@ public class AuthenticationServiceImp implements AuthenticationService {
 
         return appointmentResponse;
 
+    }
+
+    @Override
+    public List<AppointmentRequest> appointmentList(SortingRequest request) {
+        int pageNo = request.getPageNo();
+        int pageSize = request.getPageSize();
+        String sortBy = request.getSortBy();
+        String sortDir = request.getSortDir();
+        //todo
+        return List.of();
     }
 
 

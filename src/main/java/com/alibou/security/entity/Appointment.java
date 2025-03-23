@@ -16,15 +16,18 @@ public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "name")
+    private String yourName;
+    @Column(name = "email")
+    private String email;
+    @Column(name = "mobile_no")
+    private String mobileNo;
     @Column(name = "appointment_date")
     private Date appointmentDate;
     @Column(name = "department")
     private String department;
     @Column(name = "appointnment_time")
     private Time appointmentTime;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
     @Column(name = "status")
     private Boolean status = true;
 }
