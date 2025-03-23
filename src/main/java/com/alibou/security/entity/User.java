@@ -43,14 +43,21 @@ public class User implements UserDetails {
     private List<Token> tokens;
     @OneToMany(mappedBy = "user")
     private List<Appointment> appointments ;
+    @OneToOne(mappedBy = "user")
+    private ForgotPassword forgotPassword;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return List.of(new SimpleGrantedAuthority(role.name()));
-        //for custom roles below method is called
-        return role.getAuthorities();
-        //now we can access the roles
-    }
+//    @Override
+//    public Collection<? extends GrantedAuthority> getAuthorities() {
+////        return List.of(new SimpleGrantedAuthority(role.name()));
+//        //for custom roles below method is called
+//        return role.getAuthorities();
+//        //now we can access the roles
+//    }
+
+      @Override
+      public Collection<? extends GrantedAuthority> getAuthorities() {
+       return List.of();
+      }
 
     @Override
     public String getPassword() {

@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,13 +42,15 @@ public class AuthenticationServiceImp implements AuthenticationService {
     private final TokenRepository tokenRepository;
     private final AppointmentRepository appointmentRepository;
     private final AuthenticatedUserUtil authenticatedUserUtil;
+
+
+    Logger logger = LoggerFactory.getLogger(AuthenticationServiceImp.class);
     @Override
     public AuthenticationResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ApiException(HttpStatus.BAD_REQUEST,"Email is already in use"); // Custom exception
         }
         var user = User.builder()
-
                 .yourName(request.getYourName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -60,7 +64,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
         saveUserToken(savedUser, jwtToken);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refreshToken)
+                .message("Registration Successful")
                 .build();
     }
 
@@ -87,7 +91,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
         saveUserToken(user, jwtToken);
         AuthenticationResponse authenticationResponse= AuthenticationResponse.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refreshToken)
+                .message("Login Successful")
                 .build();
         return authenticationResponse;
     }
@@ -114,7 +118,6 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 saveUserToken(user, accessToken);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
-                        .refreshToken(refreshToken)
                         .build();
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
@@ -125,13 +128,19 @@ public class AuthenticationServiceImp implements AuthenticationService {
     public AppointmentResponse appointment(AppointmentRequest request) {
         User loggedInUser = authenticatedUserUtil.getAuthenticatedUser();
         Appointment appointment=new Appointment();
-        appointment.setDepartment(request.getDepartment());
-        appointment.setAppointmentDate(request.getDateOfAppointment());
-        appointment.setAppointmentTime(request.getTimeOfAppointment());
-        appointment.setUser(loggedInUser);
-        appointmentRepository.save(appointment);
         AppointmentResponse appointmentResponse=new AppointmentResponse();
-        appointmentResponse.setMessage("Appointment Booked Successfully!");
+        logger.info("inside appointment method");
+        try{
+            logger.info("inside try block");
+            appointment.setDepartment(request.getDepartment());
+            appointment.setAppointmentDate(request.getDateOfAppointment());
+            appointment.setAppointmentTime(request.getTimeOfAppointment());
+            appointment.setUser(loggedInUser);
+            appointmentRepository.save(appointment);
+            appointmentResponse.setMessage("Appointment Booked Successfully!");
+        }catch (Exception e){
+            logger.error("error in appointment method ", e.getStackTrace());
+        }
 
         return appointmentResponse;
 

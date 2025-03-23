@@ -15,21 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
-import static com.alibou.security.enums.Permission.ADMIN_CREATE;
-import static com.alibou.security.enums.Permission.ADMIN_DELETE;
-import static com.alibou.security.enums.Permission.ADMIN_READ;
-import static com.alibou.security.enums.Permission.ADMIN_UPDATE;
-import static com.alibou.security.enums.Permission.MANAGER_CREATE;
-import static com.alibou.security.enums.Permission.MANAGER_DELETE;
-import static com.alibou.security.enums.Permission.MANAGER_READ;
-import static com.alibou.security.enums.Permission.MANAGER_UPDATE;
-import static com.alibou.security.enums.Role.ADMIN;
-import static com.alibou.security.enums.Role.MANAGER;
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -47,7 +32,8 @@ public class SecurityConfiguration {
             "/swagger-ui/**",
             "/webjars/**",
             "/swagger-ui.html",
-    "/api/v1/auth/authenticate"};
+    "/api/v1/auth/authenticate",
+    "/api/v1/password/**"};
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;

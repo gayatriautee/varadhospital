@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import static com.alibou.security.enums.Role.ADMIN;
-import static com.alibou.security.enums.Role.MANAGER;
 
 @SpringBootApplication
 public class SecurityApplication {
