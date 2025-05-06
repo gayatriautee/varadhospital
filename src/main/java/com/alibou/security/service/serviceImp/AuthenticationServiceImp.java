@@ -17,9 +17,16 @@ import com.alibou.security.entity.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,9 +38,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class AuthenticationServiceImp implements AuthenticationService {
 
     private final UserRepository userRepository;
@@ -42,10 +49,21 @@ public class AuthenticationServiceImp implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
     private final AppointmentRepository appointmentRepository;
-    private final AuthenticatedUserUtil authenticatedUserUtil;
+    private ModelMapper mapper;
 
 
     Logger logger = LoggerFactory.getLogger(AuthenticationServiceImp.class);
+
+    public AuthenticationServiceImp(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, TokenRepository tokenRepository, AppointmentRepository appointmentRepository, ModelMapper mapper) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+        this.tokenRepository = tokenRepository;
+        this.appointmentRepository = appointmentRepository;
+        this.mapper = mapper;
+    }
+
     @Override
     public AuthenticationResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -60,12 +78,11 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 .mobileNo(request.getMobileNo())
                 .build();
         var savedUser = userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        saveUserToken(savedUser, jwtToken);
+//        var jwtToken = jwtService.generateToken(user);
+ //       saveUserToken(savedUser, jwtToken);
         return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .message("Registration Successful")
+                .accessToken("")
+                .message("User Added Successfully!")
                 .build();
     }
 
@@ -87,8 +104,8 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 .orElseThrow(() -> new UserNotFoundException(request.getEmail()));
 
         var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
+        cleanUpRevokedTokens();
         saveUserToken(user, jwtToken);
         AuthenticationResponse authenticationResponse= AuthenticationResponse.builder()
                 .accessToken(jwtToken)
@@ -98,34 +115,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
     }
 
     @Override
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        final String userEmail;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
-            return;
-        }
-        refreshToken = authHeader.substring(7);
-        userEmail = jwtService.extractUserName(refreshToken);
-        if (userEmail != null) {
-            var user = this.userRepository.findByEmail(userEmail)
-                    .orElseThrow();
-            if (jwtService.isTokenValid(refreshToken, user)) {
-                var accessToken = jwtService.generateToken(user);
-                revokeAllUserTokens(user);
-                saveUserToken(user, accessToken);
-                var authResponse = AuthenticationResponse.builder()
-                        .accessToken(accessToken)
-                        .build();
-                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-            }
-        }
-    }
-
-    @Override
+    @Transactional
     public AppointmentResponse appointment(AppointmentRequest request) {
         Appointment appointment=new Appointment();
         AppointmentResponse appointmentResponse=new AppointmentResponse();
@@ -149,13 +139,32 @@ public class AuthenticationServiceImp implements AuthenticationService {
     }
 
     @Override
-    public List<AppointmentRequest> appointmentList(SortingRequest request) {
+    public AppointmentListResponse appointmentList(AppointmentListRequest request) {
+        AppointmentListResponse response = new AppointmentListResponse();
         int pageNo = request.getPageNo();
         int pageSize = request.getPageSize();
         String sortBy = request.getSortBy();
         String sortDir = request.getSortDir();
-        //todo
-        return List.of();
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Appointment> result = appointmentRepository.findAll(pageable);
+
+        List<Appointment> appointments = result.getContent();
+
+        List<AppointmentListContent> content= appointments.stream().map(appointment -> mapToDTO(appointment)).collect(Collectors.toList());
+
+        response.setContent(content);
+        response.setPageNo(result.getNumber());
+        response.setPageSize(result.getSize());
+        response.setTotalElements(result.getTotalElements());
+        response.setTotalPages(result.getTotalPages());
+        response.setIsLast(result.isLast());
+
+
+        return response;
     }
 
 
@@ -185,6 +194,17 @@ for that i wrote the below method
             t.setRevoked(true);
         });
         tokenRepository.saveAll(validUserTokens);
+    }
+
+    @Transactional
+    public void cleanUpRevokedTokens() {
+        tokenRepository.deleteAllRevokedTokens();
+    }
+
+    private AppointmentListContent mapToDTO(Appointment appointment){
+//        using mapper to reduce code
+        AppointmentListContent appointmentListContent = mapper.map(appointment,AppointmentListContent.class);
+        return appointmentListContent;
     }
 
 }

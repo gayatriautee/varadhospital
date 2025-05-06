@@ -30,13 +30,6 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 
-    @PostMapping("/refresh-token")
-    public void refreshToken(
-            HttpServletRequest request, HttpServletResponse response
-    ) throws IOException {
-       authenticationService.refreshToken(request, response);
-    }
-
     @PostMapping("/appointment")
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AppointmentResponse> appointment(@RequestBody AppointmentRequest request){
@@ -45,7 +38,7 @@ public class AuthenticationController {
 
     @PostMapping("/appointment-list")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Object> appointmentList(){
-        return null;
+    public ResponseEntity<Object> appointmentList(@RequestBody AppointmentListRequest request){
+        return ResponseEntity.ok(authenticationService.appointmentList(request));
     }
 }

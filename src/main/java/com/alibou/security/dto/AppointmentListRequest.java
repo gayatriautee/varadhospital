@@ -3,7 +3,7 @@ package com.alibou.security.dto;
 import lombok.Data;
 
 @Data
-public class SortingRequest {
+public class AppointmentListRequest {
     private int pageNo;
     private int pageSize;
     private String sortBy;

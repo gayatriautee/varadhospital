@@ -11,9 +11,7 @@ import java.sql.Date;
 import java.sql.Time;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class AppointmentRequest {
-    private Integer id;
     @NotEmpty(message = "Please fill the name field")
     private String yourName;
     @NotEmpty(message = "Please fill the email field")

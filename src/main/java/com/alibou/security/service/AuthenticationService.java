@@ -12,8 +12,7 @@ public interface AuthenticationService {
 
     AuthenticationResponse authenticate(AuthenticationRequest request);
 
-    void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
     AppointmentResponse appointment(AppointmentRequest request);
 
-    List<AppointmentRequest> appointmentList(SortingRequest request);
+    AppointmentListResponse appointmentList(AppointmentListRequest request);
 }

@@ -1,10 +1,7 @@
 package com.alibou.security.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 import java.sql.Date;
@@ -23,9 +20,11 @@ public class Appointment {
     @Column(name = "mobile_no")
     private String mobileNo;
     @Column(name = "appointment_date")
+    //todo
     private Date appointmentDate;
     @Column(name = "department")
     private String department;
+    //todo
     @Column(name = "appointnment_time")
     private Time appointmentTime;
     @Column(name = "status")
