@@ -2,9 +2,9 @@ package com.alibou.security.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.sql.Time;
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -20,13 +20,15 @@ public class Appointment {
     @Column(name = "mobile_no")
     private String mobileNo;
     @Column(name = "appointment_date")
-    //todo
-    private Date appointmentDate;
+    private LocalDateTime appointmentDate;
     @Column(name = "department")
     private String department;
-    //todo
-    @Column(name = "appointnment_time")
-    private Time appointmentTime;
     @Column(name = "status")
     private Boolean status = true;
+    @Column(name="created_at")
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    @Column(name="updated_at")
+    @CreationTimestamp
+    private LocalDateTime updatedAt;
 }

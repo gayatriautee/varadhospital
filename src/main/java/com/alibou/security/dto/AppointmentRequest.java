@@ -7,7 +7,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.sql.Time;
 
 @Data
@@ -22,8 +23,6 @@ public class AppointmentRequest {
     private String mobileNo;
     @NotEmpty(message = "Please select a department")
     private String department;
-    @NotEmpty(message = "Please select a date for your appointment")
-    private Date dateOfAppointment;
-    @NotEmpty(message = "Please select the time of your appointment")
-    private Time timeOfAppointment;
+    @NotEmpty(message = "Please select a date and time for your appointment")
+    private LocalDateTime dateOfAppointment;
 }

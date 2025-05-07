@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointment Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f7;
+            color: #333333;
+            padding: 0;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #198754; /* Bootstrap green */
+            padding: 20px;
+            color: #ffffff;
+            text-align: center;
+        }
+        .content {
+            padding: 30px;
+        }
+        .content h2 {
+            margin-top: 0;
+            color: #198754;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 25px;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #198754;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .footer {
+            background-color: #f0f0f0;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #777777;
+        }
+        li{
+        margin-bottom:10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img src="cid:logoImage" alt="Clinic Logo" width="100" style="display:block; margin: 0 auto 10px;">
+        <h1>Appointment Confirmed</h1>
+    </div>
+
+    <div class="content">
+        <h2>Hello <span th:text="${name}">Patient</span>,</h2>
+        <p>Your appointment has been successfully scheduled. Below are your appointment details:</p>
+        <ul>
+<!--            <li><strong>Doctor:</strong> <span th:text="${doctorName}">Dr. John Smith</span></li>-->
+            <li><strong>Department:</strong> <span th:text="${department}">Cardiologist</span></li>
+            <li><strong>Date & Time:</strong> <span th:text="${appointmentDate}">none</span></li>
+<!--            <li><strong>Time:</strong> <span th:text="${appointmentTime}">none</span></li>-->
+            <li><strong>Location:</strong> <span th:text="${location}">City Hospital, Room 203</span></li>
+            <li><strong>Patient Email:</strong> <span th:text="${email}">you@example.com</span></li>
+        </ul>
+        <p>Please arrive 10 minutes early and bring any previous medical records if available.</p>
+<!--        <a th:href="@{https://yourclinic.com/appointments}" class="button">View Appointment</a>-->
+    </div>
+    <p style="font-size: 12px; color: #888; text-align: center; margin: 10px 0;">
+        Please do not reply to this email. This address is not monitored.
+    </p>
+    <div class="footer">
+        &copy; 2025 YourClinic. All rights reserved. | <a href="https://yourclinic.com">yourclinic.com</a>
+    </div>
+</div>
+</body>
+</html>

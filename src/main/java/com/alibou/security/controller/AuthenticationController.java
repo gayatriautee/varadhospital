@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +34,11 @@ public class AuthenticationController {
     @PostMapping("/appointment")
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AppointmentResponse> appointment(@RequestBody AppointmentRequest request){
-        return ResponseEntity.ok(authenticationService.appointment(request));
+        AppointmentResponse result = authenticationService.appointment(request);
+        if(ObjectUtils.isNotEmpty(result)){
+
+        }
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/appointment-list")

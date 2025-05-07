@@ -3,6 +3,7 @@ package com.alibou.security.service.serviceImp;
 import com.alibou.security.config.AuthenticatedUserUtil;
 import com.alibou.security.config.JwtService;
 import com.alibou.security.dto.*;
+import com.alibou.security.email.EmailService;
 import com.alibou.security.entity.Appointment;
 import com.alibou.security.entity.Token;
 import com.alibou.security.enums.Role;
@@ -20,6 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,11 +57,12 @@ public class AuthenticationServiceImp implements AuthenticationService {
     private final TokenRepository tokenRepository;
     private final AppointmentRepository appointmentRepository;
     private ModelMapper mapper;
+    private final EmailService emailService;
 
 
     Logger logger = LoggerFactory.getLogger(AuthenticationServiceImp.class);
 
-    public AuthenticationServiceImp(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, TokenRepository tokenRepository, AppointmentRepository appointmentRepository, ModelMapper mapper) {
+    public AuthenticationServiceImp(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, TokenRepository tokenRepository, AppointmentRepository appointmentRepository, ModelMapper mapper, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -63,6 +70,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
         this.tokenRepository = tokenRepository;
         this.appointmentRepository = appointmentRepository;
         this.mapper = mapper;
+        this.emailService = emailService;
     }
 
     @Override
@@ -128,9 +136,15 @@ public class AuthenticationServiceImp implements AuthenticationService {
             appointment.setMobileNo(request.getMobileNo());
             appointment.setDepartment(request.getDepartment());
             appointment.setAppointmentDate(request.getDateOfAppointment());
-            appointment.setAppointmentTime(request.getTimeOfAppointment());
-            appointmentRepository.save(appointment);
+            Appointment response = appointmentRepository.save(appointment);
             appointmentResponse.setMessage("Appointment Booked Successfully!");
+            if(ObjectUtils.isNotEmpty(response)){
+                LocalDateTime appointmentDate = response.getAppointmentDate(); // returns LocalDateTime
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' hh:mm a");
+                String formattedDate = appointmentDate.format(formatter);
+                emailService.sendRegistrationEmail(response.getEmail(), response.getYourName(),
+                        response.getMobileNo(), response.getDepartment(), formattedDate);
+            }
         }catch (Exception e){
             logger.error("error in appointment method ", e.getStackTrace());
         }
