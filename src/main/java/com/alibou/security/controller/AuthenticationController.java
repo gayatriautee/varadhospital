@@ -41,4 +41,12 @@ public class AuthenticationController {
     public ResponseEntity<Object> appointmentList(@RequestBody AppointmentListRequest request){
         return ResponseEntity.ok(authenticationService.appointmentList(request));
     }
+
+
+    @PostMapping("/appointment-status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Object> appointmentStatus(@RequestBody AppointmentStatusRequest request){
+        return ResponseEntity.ok(authenticationService.appointmentStatus(request));
+    }
+
 }

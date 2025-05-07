@@ -15,4 +15,7 @@ public interface AuthenticationService {
     AppointmentResponse appointment(AppointmentRequest request);
 
     AppointmentListResponse appointmentList(AppointmentListRequest request);
+
+    AppointmentResponse appointmentStatus(AppointmentStatusRequest request);
+
 }

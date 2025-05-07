@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -164,6 +165,23 @@ public class AuthenticationServiceImp implements AuthenticationService {
         response.setIsLast(result.isLast());
 
 
+        return response;
+    }
+
+    @Override
+    public AppointmentResponse appointmentStatus(AppointmentStatusRequest request) {
+        AppointmentResponse response = new AppointmentResponse();
+        Appointment appointmentStatus = new Appointment();
+        try{
+            Optional<Appointment> appointment = appointmentRepository.findById(request.getId());
+            if(appointment.isPresent()) appointmentStatus = appointment.get();
+            appointmentStatus.setStatus(request.getStatus());
+            appointmentRepository.save(appointmentStatus);
+            response.setMessage("Status updated successfully!");
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.error("error in status update");
+        }
         return response;
     }
 
