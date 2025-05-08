@@ -165,11 +165,17 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        Page<Appointment> result = appointmentRepository.findAll(pageable);
 
-        List<Appointment> appointments = result.getContent();
+        LocalDateTime startOfDay = request.getDate().atStartOfDay();
+        LocalDateTime endOfDay = request.getDate().atTime(23, 59, 59);
+        Page<AppointmentListContent> result = appointmentRepository.findAllByAppointmentDateBetween(startOfDay, endOfDay, pageable);
+        List<AppointmentListContent> content = result.getContent();
 
-        List<AppointmentListContent> content= appointments.stream().map(appointment -> mapToDTO(appointment)).collect(Collectors.toList());
+//        Page<Appointment> result = appointmentRepository.findAll(pageable);
+//
+//        List<Appointment> appointments = result.getContent();
+//
+//        List<AppointmentListContent> content= appointments.stream().map(appointment -> mapToDTO(appointment)).collect(Collectors.toList());
 
         response.setContent(content);
         response.setPageNo(result.getNumber());

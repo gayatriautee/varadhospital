@@ -27,6 +27,7 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
         Context context = new Context();
+        context.setVariable("hospitalName","Varadha Hospital");
         context.setVariable("name", name);
         context.setVariable("username", username);
         context.setVariable("email", to);
